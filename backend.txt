@@ -1,0 +1,115 @@
+backend
+
+java
+python
+node.js
+c#
+
+DB서버와 연동.
+front 상호작용
+
+front : DB 연동 불가
+
+JSP / Servlet (웹에서 동작하는 자바) =>  스프링 프레임워크
+
+스프링 프레임워크 : 기본 개념
+스프링 부트 : 스프링 프레임워크를 사용하기 쉽게 간략화 시킨것.
+
+프로젝트 관리 도구
+- 라이브러리 관리, 컴파일, 빌드(패키지 작성 :war jar) 배포
+
+- gradle : groovy 작성, 빠름 , build.gradle
+- maven : XML 작성 ,느림 , 에전부터 사용하던 방식 , pom.xml
+
+웹서버
+ https://spring.io/projects/spring-boot
+ - http:// or https:// 들어오는 요청 처리 해주는 서버
+ - apache 웹서버, NginX
+ 
+ 
+ 
+ WAS(Web Application Server)
+ - java 코드로 작성 된 페이지를 해석해주는 서버 필요.
+ 
+ 웹서버 + WAS 조합 ====> 서버 기능을한다.
+=> Tomcat (free)
+=> spring boot에는 tomcat이 내장되어 있음.
+=> http://localhost:8080/
+
+에러
+caused by ~~~
+
+500 에러 == 서버쪽 에러
+
+Template Resolvers 에러는 =>
+1) TemplateInputException ==> html 없어서 오류.
+
+스프링 프레임워크 화면단
+JSP (*.jsp) : html 코드 + 자바코드 같이 사용가능. [Java Server Pages] (기본값) [기본으로 지원했음]
+템플릿 사용가능하지만...
+react 사용 가능하지만...
+스프링 부트 화면단 (선택사항)
+1.템플릿 (기본값) : thymeleaf,freemaker,mustache ...
+2.react
+3.JSP (boot는 기본적으로 JSP 지원안함) => 따로 설정 필요.
+
+***********************************
+src / main / demo / controller
+src / main / templates ==> 안에 .html파일 만들어야함.
+***********************************
+
+//GetMapping ==> get요청으로 들어올 때 의미.
+    @GetMapping("/home") //URL 이름 경로
+
+--------------------------------------------------
+스프링 부트 동작방식
+1) DispatcherServlet : 웹 요청을 처음에 받음.
+2) 요청 경로 파악 후 HandlerMapping, HandlerAdapter 객체 사용
+3) 적적한 컨트롤러 요청 넘김
+4) 컨트롤러 작업 수행 후 결과를 템플릿과 함께 리턴.
+5) 클라이언트 화면에 내용 보여지게 됨.
+
+결국 사용자는 컨트롤러와 템플릿을 잘 작성하면 된다!
+
+템플릿 규칙
+컨트롤러가 void 일 때 => 요청할때 사용 했던 경로에서 (@GetMapping) 마지막에 존재하는 경로명.html
+
+void localhost:8080/content/home ==> content/home.html
+void localhost:8080/board/add : board/add.html
+
+String : return 값에 html을 붙여서 찾기
+
+resource/ templates/ result.html
+
+템플릿 파일명은 경로랑 다르게 사용할때.
+return "result";
+
+같은 곳을 가리켜줄 때 String을 사용해서 return 으로 반환한다.
+localhost:8080/board/add ==> /content/result.html
+localhost:8080/add ==> /content/result.html
+
+---------------------------------------------------
+@Controller : 해당 클래스가 컨트롤러 역할임을 명시
+ -프레임워크가 해당 클래스를 관리한다는 의미도 있다. (new를 해서 객체생성하여 갖고있겠다는 의미.)
+
+
+에러 동일한 경로 작성 시 (**** .java 파일에서 경로 중복 안됨! ****)
+Caused by: org.springframework.beans.factory.BeanCreationException at AbstractAutowireCapableBeanFactory.java:1826
+Caused by: java.lang.IllegalStateException at AbstractHandlerMethodMapping.java:676
+
+
+<form action="" method="post"> 포스트 폼을 사용하여 포스트 매핑할 때 , 겟매핑도 있어야함.
+<input type="text" name="num1" id="num1" />
+      <button type="submit">전송</button>
+
+
+form action 안쓰면 경로 그대로 나옴.
+
+name = "num1"을 그대로 
+
+@PostMapping("/calc")
+
+    public void postCalc(int num1) {
+        log.info("calc post {}",num1); // => {} 중괄호의 의미는 변수 들어가는 공간. 
+    }
+
