@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <ul>
+      <li><a href="/login">로그인</a></li>
+    </ul> -->
+    <form action="" method="post">
+      <div>
+        <label for="id">ID</label>
+        <input type="text" name="id" id="id" th:value="${login?.id}" />
+
+        <label for="password">PASSWORD</label>
+        <input type="text" name="password" id="password" th:value="${login?.password}" />
+      </div>
+      <button type="submit">로그인</button>
+    </form>
+    <ul>
+      <li>아이디 : [[${loginDTO?.id}]]</li>
+      <!--**************클래스명에서 첫시작 문자를 소문자로 가져온다.************-->
+      <li>비밀번호 : [[${loginDTO?.password}]]</li>
+    </ul>
+  </body>
+</html>

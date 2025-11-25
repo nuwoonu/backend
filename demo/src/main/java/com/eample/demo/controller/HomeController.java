@@ -1,9 +1,16 @@
 package com.eample.demo.controller;
 
+import java.net.http.HttpRequest;
+
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.eample.demo.dto.Info;
+
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,16 +19,58 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Log4j2 // 로그를 저장하는데 사용되는 라이브러리 
 @Controller 
 public class HomeController {
+
+    @GetMapping("/")
+    public String getIndex(RedirectAttributes rttr) {
+        //return "index"; // index라는 html을 갖는 templates 폴더 안에서 불러온다.
+        // ? key=value& 보내고 싶을 때
+        rttr.addAttribute("bno", 10);
+        rttr.addAttribute("name", "홍길동");
+        rttr.addFlashAttribute("money",1000);
+        return "redirect:/home"; // redirect:/경로(컨트롤러가 가지고 있는 경로)
+    }
+    
+
+
+
+
+
+
     // URL 설정 메서드 및 어노테이션
     //GetMapping ==> get요청으로 들어올 때 의미.
     @GetMapping("/home") //URL 이름 경로
-    public void getHome() {
-       log.info("home 요청"); // == System.out.println() 과 똑같은것.
+    public void getHome(int bno, String name) {
+       log.info("home 요청 {} {} ",bno ,name); // == System.out.println() 과 똑같은것.
     }
 
     @GetMapping("/add")
-    public String getAdd() {
-        return "result";
+    public String getAdd(@RequestParam int num1, @RequestParam String op , @RequestParam int num2, Model model) {
+        log.info("사칙연산 요청 {} {} {}",num1,op,num2);
+
+        int result = 0;
+        switch (op) {
+            case "+":
+                result = num1 + num2;
+                break;
+            case "-":
+                result = num1 - num2;
+                break;
+            case "*":
+                result = num1 * num2;
+                break;
+            case "/":
+                result = num1 / num2;
+                break;
+        }
+        log.info("result : "+ result);
+        
+        // Model이라는 객체는 컨트롤러가 뷰(사용자가 보는 화면)에 데이터를 전달하기 위해 사용하는 인터페이스
+        // model.addAttribute(key,value) => 키값은 중복안되게 해야한다.
+        model.addAttribute("num1", num1);
+        model.addAttribute("op", op);
+        model.addAttribute("num2", num2);
+        model.addAttribute("result", result);
+        return "exam3";
     }
     
     @GetMapping("/calc")
@@ -30,8 +79,46 @@ public class HomeController {
     }
     
     @PostMapping("/calc")
-    public void postCalc(int num1) {
-        log.info("calc post {}",num1);
+    public void postCalc(@RequestParam(required =false, defaultValue = "0") int num1, @RequestParam(required = false, defaultValue = "0") int num2) {
+        log.info("calc post {} {} ",num1,num2);
     }
+
+    //http://localhost:8080/info
+    @GetMapping("/info")
+    public void getInfo() {
+        log.info("info.html 호출");
+    }
+
+    // 1. 개별처리
+    // @PostMapping("/info")
+    // public void postInfo(String username, int age, String addr, String tel) 
+    // {
+    //     log.info("info post");
+    //     log.info("{},{},{},{}", username,age,addr,tel);
+
+    // }
+
+
+    // 2. DTO 이용
+    // @PostMapping("/info")
+    // public void postMethodName(Info info) {
+    //     log.info("info post");
+    //     log.info("{},{},{},{}",info.getUsername(),info.getAge(),info.getAddr(),info.getTel());
+    // }
+
+
+    // 3. HttpServletRequest 객체 사용
+    // 사용자가 요청할 때 사용하는 모든 정보 가지고 올 수 있음 : 브라우저정보, 사용자ip, 경로 추출
+    @PostMapping("/info")
+    public void postInfo(HttpServletRequest request) {
+        log.info("info post");
+        String username = request.getParameter("username");
+        int age = Integer.parseInt(request.getParameter("age"));
+        String addr = request.getParameter("addr");
+        String tel = request.getParameter("tel");
+        log.info("{},{},{},{}",username,age,addr,tel);
+    }
+    
+    
     
 }
