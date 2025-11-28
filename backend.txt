@@ -224,7 +224,15 @@ public void postlogin(@ModelAttribute("login") LoginDTO login) // *****html에�
 
 
 
-Model : 뷰로 데이터 전달
+Model : 뷰로 데이터 전달하기 위해 사용하는 인터페이스
+controller 에서 html로 이동하는 경우에 사용
+model.addAttribute("키,값)
+모델에 담는건 그다음에 띄우는 html에 담을때 사용.
+
+HttpSession : 컨트롤러가 뷰에 데이터를 전달하기 위해 사용
+controller 에서 html로 이동(forward) + redirect 이동.
+여기저기 페이지를 이동할때 살아있게 하고 싶을때 사용. ***리다이렉트 붙어서 움직일때.***
+
 @ModelAttribute("키") : 뷰로 데이터 전달 + (데이터 바인딩)
 
 RedirectAttributes : 리다이렉트가 발생한 후 데이터를 일회성으로 전달하기 위해 사용하는 인터페이스
@@ -241,3 +249,303 @@ String => return ;=>
 
 가져올때 어떻게?
 DTO , 개별변수 
+
+Web
+1. 게시판 기능 : board
+                ㄴ controller
+                ㄴ dto
+                ㄴ repository
+                ㄴ service
+                ㄴ entity
+2. 멤버 기능 : member
+                ㄴ controller
+                ㄴ dto
+                ㄴ repository
+                ㄴ service
+                ㄴ entity
+
+
+./gradlew build 터미널 명령어 빠르게 실행가능!
+
+스프링 부트 화면단
+1) 템플릿 - jsp
+2) 템플릿 - thymeleaf, ...
+3) react
+
+static 폴더안에
+css,img,js 같은 불러오는것들을 넣는다.
+
+thymeleaf
+${} : 객체 or 변수값 표현
+@{} : Link 표현
+${#} : 
+th:text => 일반 태그용
+th:value => form 태그용
+
+
+컨트롤러에서 화면으로 전달하기 위해서 Model 객체 사용.
+
+th:text="${loginDto?.id}" => 모델에서 먼저 찾음.
+
+
+<div th:if="${session.loginDto}"> 그냥 있으면 true 라는 의미
+
+반복문 사용시 html에서
+th:each="임의지정(변수명) : ${컨트롤러에서 사용한 이름}
+ 상태변수를 통해 index,count,size,even,odd 추출가능
+
+날짜 / 시간 
+thymeleaf에서의 19 Appendix B: Expression Utility Objects =>  java.time 참조
+
+<td th:text="${#temporals.format(dto.regDate, 'yyyy/MM/dd HH:mm')}"></td>
+
+조건문
+th:if => else 없음
+th:unless 
+
+
+<!-- <td>[[${dto.regDate}]]</td> -->
+
+th:swtich
+ th:case 이런식으로 사용해야함.
+
+ 링크 표현 방식
+ <a th:href=@{"컨트롤러 경로}"
+ <a href="/new1?no=1" == <a href="@{/new(no='1')}">
+
+static 폴더 아래(안에) 경로
+ <script th:src="@{스태틱밑에있는경로 }"> </script>
+ <link th:href="@{/css/my.css}" rel="stylesheet">
+ <img th:src="@{/img/my.jpg}">
+
+
+
+
+ <a th:href="@{read(id=${dto.id})}" th:text="${dto.title}"></a>
+ <a th:href="@{/read(id=${dto.id})}" th:text="${dto.title}"></a> => 상위폴더 없이 바로 /read로 이동
+
+ thymeleaf-layout-dialect
+
+
+ layout.html : 전체 레이아웃 정의.
+  변경되지 않는 디자인 작성한다. 계속 이어져서 뜨게해주는것.
+  변경되는 부분은 대체하는 의미로 사용한다. thymeleaf의 기본방식이다.
+  아래의 부분은 예 이다.
+  
+
+  <h1 th:fragment="header">Fragment Test - header 파일</h1>
+  <div th:replace="fragments/header::header"></div>
+  
+  
+  <h1 th:fragment="main">Fragment Test - header 파일</h1>
+  <div th:replace="fragments/header::main"></div>
+
+
+  <div th:replace=""></div> 이 태그를 대체하면서 디자인 영역이 적용됨.
+  <div th:insert=""></div> 이 태그 사이를 디자인 영역이 적용됨.
+
+thymeleaf-layout-dialect
+ thymeleaf 기본방식 + 상속
+ layout으로 시작하는것을 적용할 수 있다.
+
+ layout:decorate="~{layouts/default}" 상속의개념
+
+ th:fragment="nav" 인식이 되게 적용.
+
+ 사용자 입력값 검증
+ db에 저장되는 값이기 떄문에.
+ 1) front =>js
+ 2) backend => spring validation
+    @NotEmpty
+    @NotBlank
+    @Length(min=3, max=7)
+    @Email
+    @Max(숫자): 지정한 숫자보다 작은가 검사
+    @Min(숫자): 지정한 숫자보다 큰지? 검사
+    @NotNull 
+    @Size
+    @Pattern(정규식)
+
+
+    Field error in object 'registerDTO' on field 'email': rejected value []; 
+    codes [NotEmpty.registerDTO.email,NotEmpty.email,NotEmpty.java.lang.String,NotEmpty]; 
+    arguments [org.springframework.context.support.DefaultMessageSourceResolvable: 
+    codes [registerDTO.email,email]; arguments []; default message [email]]; default message [이메일 형식에 맞춰 작성해야합니다.]
+    thymeleaf 에러 출력
+
+    
+    아이디는 영어 대소문자, 숫자가능, 특수문자는 #$%만 허용해서 5~12자 사이
+
+    abc15#$
+    $123evdgdeA
+
+
+
+--- regex ----
+정규표현식
+자바, 자바스크립트, 파이썬
+문자열에서 특정 문자 조합을 찾기 위한 패턴
+
+정규표현식 생성
+const re1 = /ab+c/;
+const re2 = new RegExp("ab+c");
+
+플래그
+g : 전역검색
+i : 대소문자 구분없는 검색
+m : 다중행 검색
+u : 유니코드
+
+기호
+^ : ~~ 시작하는
+$ : ~~ 끝나는
+. : 모든 문자,숫자,특수문자,공백 대응 (공백포함) [1:1]
+.$ : 맨 마지막 모든문자 대응.
+\.$ : 마침표(.)으로 끝나는 의미
+[abcde] : a or b or c or d or e 문자 찾기
+[a-e] : a~e로 찾기
+[a-e1-6] : a~e, 1~6 찾기
+
+[a-e1-6$%&][def] 하나 하나 일치하는거 땡겨옴
+    e        e   => ee
+    e        d   => ed
+
+[A-Za-z] :  영어 대소문자 찾기
+
+[가-힣] : 한글 찾기
+[^가-힣] : 한글 제외한 모든 것.
+(on|ues|rida) : 그룹으로 묶기 on or ues or rida.
+(on|Tues|Fri)day : 요일별로 묶어 찾을 때 사용
+
+..(nd|esd|id)ay : 앞에 두개는 무엇이든 되며, (nd or esd or id)ay를 포함하는 문자열 찾음.
+개수지정
+a+ : a , 여러 a를 포함한것을 찾음.(최소 1 ~ ♾️)
+a* : 최소( 0~ ♾️)
+a? : 최소 0 ~ 최대 1
+a{1,3} : a를 1개 or 3개씩 묶어서 찾음. (최소 1 ~ 최대 3)
+{3} : 최소 3 ~ 최대 3
+{3,} : 최소 3 ~ ♾️
+[abc] + : 포함하는 것 쭉이어진것도 찾음.
+
+\w : 영어 숫자 _(언더바) 찾음. ==> [A-Za-z0-9_]
+\W : == [^A-Z-a-z0-9_]
+\s : 공백(스페이스) 찾음.
+\S : 공백(스페이스)를 제외한 모든 문자 찾음.
+\d : 숫자를 찾음 [0-9]
+\D : 숫자를 제외한 모든것 찾음 [^0-9]
+
+() : 캡쳐링 재사용 가능
+    없으면 비캡쳐링.
+
+전방탐색
+ab(?=c) : c를 패턴으로 잡아서 패턴검색(들어있는지 안들어있는지) 사용하고, 결과를 돌려받을 때는 ab만 돌려받는다.
+
+ABC(?=D)DE
+.+(?=:) : 뭐가 오던지 최소 하나 이상 와주면 되는
+정규식은 괄호를 안주면 다 찾아서 반환하므로 괄호를 넣어 쓴다.
+
+후방탐색
+?<=: 
+.+ : 1개~여러개
+.+(?<=:) 후방탐색의 개념
+.* ==> 뭐가와도 상관없다.
+?=.* ==>
+?=^ ==> ~로 시작해야해 의미.
+
+특수문자 [#$%] 가 포함되어있으면 걸림. 순서상관없이 들어있기만 하면 됨.
+(?=.*[A-Za-z])(?=.*[\d])[A-Za-z\d#$%]{5,12}
+
+11월/27일 11:37AM
+jpa 프로젝트 생성 
+- spring web lombok thymeleaf dev tools validation
+- spring jpa, mysql
+
+데이터베이스 연동
+자바 + DB연동 = JDBC
+
+데이터베이스 작업을 쉽게 도와주는 라이브러리를 사용.
+1)MyBatis
+2)ORM[Object Relational Mapping]
+ 테이블 행 하나 == 객체 (개념)
+ ==> JPA [Java Persistence API] : java라는 언어에서 DB API
+ ==> 기술 구현 : Hibernate
+
+-------------------------------------------------------------
+JPA
+
+jpa 폴더 안에 
+entity: 데이터베이스 테이블 연동 객체
+repository: 
+
+jpa entity 작성시
+
+Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: 
+Error creating bean with name 'entityManagerFactory' defined in class path resource 
+[org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: 
+Entity 'com.example.jpa.entity.Student' has no identifier 
+(every '@Entity' class must declare or inherit at least one '@Id' or '@EmbeddedId' property)
+
+entity 작성 어노테이션
+@Entity: 이클래스는 테이블과 연동되어 있음
+@Id : PK
+ 기본 1,2,3,4.... MySQL auto_increment
+                oracle sequence
+
+spring-boot-starter-test : 애플리케이션 테스트 라이브러리 포함 하고 있다.
+ ㄴ Junit 이라는 것을 사용한다.
+
+ @SpringBootTest 의 의미 ==> spring boot test 클래스야
+
+ 테스트 클래스 내부에 작성하는 메소드 위에 무조건 @Test 어노테이션을 붙여 사용한다.
+
+ ****@Autowired ****** 중요!!
+ private StudentRepository studentRepository;
+
+ 스프링(부트) 프레임워크
+ => 개발자가 해야하는 일들을 축소 시켜주는게 목적이다.
+ => 객체 생성 => 사용
+  A obj = new A();
+  obj.method();
+
+  => new 해야할 객체 알려주기(어노테이션 통해서 알려주기)
+   @Controller, @Service,@Repository,@Component
+
+   => 주입  : @Autowired
+
+웹어플리케이션
+
+엡서버 + (WAS)컨테이너(Tomcat) 톰캣은 웹서버 기능도 가지고있다.
+
+톰캣 아래에 지정된 폴더에 작성된 프로젝트 배포 => gradle 사용
+./gradle build
+
+톰캣 => 폴더 => .jar 압축 푼 후 => 실행
+
+
+Entity 동작 확인작업 필요.
+ => 1) Repository 작성
+ => 2) 테스크 코드 작성
+테스트 폴더 밑으로 작성해야한다 => test/...
+
+
+ch4 JDBC DAO === JPA Repository
+
+
+service 작성
+
+jpa
+ㄴ entity
+ ㄴ repository
+
+
+memo
+
+
+// entity <=> dto 서로 왔다갔다.
+	implementation 'org.modelmapper:modelmapper:3.2.6'
+	// thymeleaf 레이아웃 상속
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.4.0'
+
+    config => 웹이 실행될때 환경설정 할 수 있게끔.
+
+    //modelmapper == Entity <=> DTO
