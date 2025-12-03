@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layouts/main_layout}">
+  <div layout:fragment="content">
+    <h1>학생전체조회</h1>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">아이디</th>
+          <th scope="col">이름</th>
+          <th scope="col">주소</th>
+          <th scope="col">성별</th>
+          <th scope="col">학년</th>
+          <th scope="col">등록일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="dto : ${list}">
+          <th scope="row" th:text="${dto.id}"></th>
+          <td><a href="" th:href="@{/student/read(id=${dto.id})}">[[${dto.name}]]</a></td>
+          <td>[[${dto.addr}]]</td>
+          <td th:text="${dto.gender}"></td>
+          <td th:text="${dto.grade}"></td>
+          <td th:text="${#temporals.format(dto.createDateTime, 'yyyy-MM-dd HH:mm')}"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</html>

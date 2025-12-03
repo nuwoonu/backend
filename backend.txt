@@ -299,6 +299,10 @@ thymeleaf에서의 19 Appendix B: Expression Utility Objects =>  java.time 참�
 
 <td th:text="${#temporals.format(dto.regDate, 'yyyy/MM/dd HH:mm')}"></td>
 
+**** 포맷 가져다 쓸때 이걸로!***
+<td th:text="${#temporals.format(dto.변수명 'yyyy/MM/dd HH:mm')}"></td>
+
+
 조건문
 th:if => else 없음
 th:unless 
@@ -549,3 +553,154 @@ memo
     config => 웹이 실행될때 환경설정 할 수 있게끔.
 
     //modelmapper == Entity <=> DTO
+
+    일반 자바
+    @Autowired : 주입
+    Memo memo = new Memo();
+    MemoService service = new MemoService();
+
+스프링 컨테이너
+bean(객체) 관리
+
+new 객체() : @(어노테이션 사용시 new를 해서 가지고 있음.) ==> @Service, @Controller, @Bean
+
+주입: @Autowired,@Inject
+
+@Disabled //build 시점에 실행하지 말기
+
+전체메모 조회 /memo/list
+하나의 메모 조회 /memo/read?id=1  ==> 이주소 만들려면 <a th:href="@{/memo/read(id=${dto.id})}" th:text="${dto.text}"></a>
+하나의 메모 수정 순서!
+1) 수정할 메모 가져오기 : /memo/modify?id=1 + get => 화면에 보여주기
+    사용자가 text를 수정 => 수정버튼 클릭 시 2)로
+
+2) 수정 후 보내기 : /memo/modify?id=1 + post
+
+submit 클릭시
+http://localhost:8080/memo/modify? + post로 움직인다
+
+폼은 1개인데 버튼을 누르면 가야할 곳이 다를때. action을 스크립트 써서 바꿔야한다.
+ modify.html div 태그 아랫부분에 추가.
+ </div>
+ <th:block layout:fragment="title">
+      <!-- 페이지별 개별 title 태그 작성 -->
+    </th:block>
+
+마지막엔 템플릿 찾으러간다 ~.html.
+하나의 메모 삭제
+/memo/remove?id=1
+
+새로운 메모 삽입
+/memo/create
+
+12월 /01일 DTO => Controller  컨트롤러단 생성!.
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary" th:fragment="nav"> 조각에대한 이름 지정 중요!.
+
+main_layout.html
+<body>
+    <div th:replace="~{fragments/nav::nav}"></div> fragments라는 폴더에 nav라는 거에 nav를 가진 th를 사용한다.
+
+
+<a class="nav-link active" aria-current="page" th:href="@{/}">Home</a> 홈으로
+
+어떻게 응답?
+<a class="nav-link active" aria-current="page" th:href="@{/memo/list}">LIST</a> memo에 list로 들어올 수 있게 경로지정.
+이걸 쓸땐 컨트롤러가 있어야한다.
+
+
+@GetMapping("/list")
+    public void getlist() {
+        log.info("전체 메모 요청");
+        List<MemoDTO> memos = memoService.readAll();
+    }
+
+
+아래에 모델(org.springframework.ui.Model) 불러서 쓴다.
+@GetMapping("/list")
+    public void getlist(Model model) {
+        log.info("전체 메모 요청");
+        List<MemoDTO> list = memoService.readAll();
+        model.addAttribute("list", list);
+    }
+
+list.html
+
+<table class="table">
+    <thead>
+        <tr>
+        <th scope="col">번호</th>
+        <th scope="col">내용</th>
+        <th scope="col">작성일자</th>
+        <th scope="col">수정일자</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="dto : ${list}">
+        <th scope="row" th:text="${dto.id}"></th>
+        <td th:text="${dto.text}"></td>
+        <td th:text="${dto.createDate}"></td>
+        <td th:text="${dto.updateDate}"></td>
+        </tr>
+        
+    </tbody>
+    </table>
+
+테이블 만들고 안에 thead 냅두고 tbody 하나 남김. => tbody 안에 th:each 추가와 th:text 추가. 정보 참조는 Memo.java안에 변수명을 가져옴.
+
+도커 다키고 해야함! DB 연동한것.
+
+틀만들고선 a 태그 걸어서 내용 부분 클릭 가능하게 변화.
+<th scope="row" th:text="${dto.id}"></th>
+          <td>
+            <a th:href="@{}" th:text="${dto.text}"></a>
+          </td>
+
+
+==> 응답하게 a태그 바꿈 <a th:href="@{/memo/read(id=${dto.id})}" th:text="${dto.text}"></a>
+
+
+이후에 MemoController.java 에가서 
+
+@GetMapping("/read")
+    public void getRead(@RequestParam Long id) {
+        log.info("memo id : {}", id);
+        
+    }
+을
+@GetMapping("/read")
+    public void getRead(@RequestParam Long id,Model model) {
+        log.info("memo id : {}", id);
+
+        MemoDTO dto = memoService.read(id);
+        model.addAttribute("dto", dto);
+    }
+수정하여 추가한다.
+
+
+<input type="text" class="form-control" id="id" th:value="${dto.id}" name="id" readonly/> readonly는 표시된것의 수정을 막는다.
+
+
+a태그는 대부분 get방식! web에서는 기본이 get이다.
+
+[[$]] 태그사이의 값을 표현하고 싶을떄. 사용한다.
+
+
+
+수정을 누르면
+http://localhost:8080/memo/modify?id=2
+/memo/modify?id=1 + post
+
+Controller까지는 백엔드이다.
+
+
+<td>[[${dto.gender}]]</td> == <td th:text="${dto.gender}"></td> 같은것. 표현형식만 다른거.
+
+th:href="@{/student/read(id=${dto.id}) ==> id=${보낼 아이디}
+
+
+
+"${dto.grade.name()} == 'FRESHMAN'" ==> thymeleaf이 해석
+"${dto.grade.name() == 'JUNIOR'}" ==> SpringEL이 해석.
+
+checkbox 이거나 radio면 value를 넣어야한다. 안그러면 on off로 할당된다.

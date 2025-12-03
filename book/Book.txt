@@ -1,0 +1,11 @@
+Book
+id: auto_increment
+code(unique) : ISBM
+title : 개미
+price : 12800
+author : 베르나르 베르베르
+
+테이블 생성
+1. 직접(ddl-auto=validate) : create table ~~
+2. JPA 생성기능 이용 : spring.jpa.hibernate.ddl-auto=create => Entity 작성.
+3. 
